@@ -108,6 +108,10 @@
     el.srcBtn.textContent = "BC";
   }
 
+  /* Modo Bandcamp: o embed é um iframe de outro domínio e NÃO aceita controle externo.
+     Play/pausa, anterior/próximo dentro do álbum, a barra de progresso e o volume do TR·AMP
+     não alcançam esse player; quem ouve usa os controles do próprio embed e o volume da aba/sistema.
+     Por isso o botão de play fica desativado e o LCD mostra "use o player". */
   function showBC(a, reason) {
     mode = "bc";
     clearTimeout(watchdog);
