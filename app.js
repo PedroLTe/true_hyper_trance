@@ -28,7 +28,7 @@
     seek: $("#seek"), fill: $("#seek-fill"),
     play: $("#btn-play"), prev: $("#btn-prev"), next: $("#btn-next"), srcBtn: $("#btn-src"), info: $("#btn-info"),
     volume: $("#volume"), playlist: $("#playlist"), ticker: $("#ticker"),
-    lensCover: $("#lens-cover"), chip: $("#np-chip"), npImg: $("#np-img"), npTitle: $("#np-title"), npPlay: $("#np-play")
+    lensCover: $("#lens-cover"), chip: $("#np-chip"), npImg: $("#np-img"), npTitle: $("#np-title"), npPlay: $("#np-play"), npBar: $("#np-bar")
   };
 
   let current = -1;      // índice em albums
@@ -63,11 +63,13 @@
   function setPlaying(on) {
     el.player.classList.toggle("is-playing", on);
     el.npPlay.textContent = on ? "❚❚" : "▶";
+    el.chip.classList.toggle("is-playing", on);
   }
 
   // anel de progresso em volta da lente (pathLength = 100)
   function setProgress(pct) {
     el.fill.style.strokeDashoffset = 100 - pct;
+    el.npBar.style.width = pct + "%";
     el.seek.setAttribute("aria-valuenow", Math.round(pct));
   }
 
@@ -286,8 +288,9 @@
   el.playlist.innerHTML = albums.map((a, i) => `
     <li><button type="button" data-i="${i}">
       <span class="pl-n">${esc(a.code)}</span>
-      <img src="${cover(a, 3)}" alt="" loading="lazy" width="26" height="26">
-      <span class="pl-t">${esc(a.title)} <small>— ${esc(a.artist)}</small></span>
+      <span class="pl-thumb"><img src="${cover(a, 3)}" alt="" loading="lazy" width="38" height="38"></span>
+      <span class="pl-t">${esc(a.title)} <small>${esc(a.artist)}</small></span>
+      <span class="pl-eq" aria-hidden="true"><i></i><i></i><i></i></span>
     </button></li>`).join("");
   $("#pl-count").textContent = `${albums.length} lançamentos`;
   el.playlist.addEventListener("click", (e) => {

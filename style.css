@@ -851,7 +851,6 @@ img { display: block; }
 .deck #bc { display: block; width: 100%; height: 300px; margin-top: 12px; border: 1px solid var(--line); background: var(--navy); }
 .deck #bc[hidden] { display: none; }
 
-.stage .playlist { position: sticky; top: 16px; }
 .stage #playlist { max-height: min(720px, calc(100vh - 80px)); }
 .stage #playlist img { width: 34px; height: 34px; }
 .stage #playlist button { padding: 7px 12px; }
@@ -927,3 +926,123 @@ img { display: block; }
   .origin { grid-template-columns: 1fr; }
   .origin .crystal { max-width: 260px; margin: 0 auto; }
 }
+
+/* ===================== playlist e "now playing": vidro escuro com moldura ===================== */
+/* cantoneiras de 1px nos quatro cantos (reaproveitado pela playlist, miniaturas e chip) */
+.stage .playlist, .np-chip, .pl-thumb {
+  --c: var(--ice); --l: 12px; --w: 1px;
+  background-repeat: no-repeat;
+}
+.stage .playlist {
+  position: relative;
+  color: var(--silver);
+  border: 1px solid rgba(201, 210, 255, .35);
+  background:
+    linear-gradient(var(--c) 0 0) top left / var(--l) var(--w), linear-gradient(var(--c) 0 0) top left / var(--w) var(--l),
+    linear-gradient(var(--c) 0 0) bottom right / var(--l) var(--w), linear-gradient(var(--c) 0 0) bottom right / var(--w) var(--l),
+    linear-gradient(160deg, rgba(42, 51, 168, .38), rgba(11, 16, 64, .82) 40%, rgba(5, 7, 24, .9));
+  background-repeat: no-repeat;
+  clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 20px 100%, 0 calc(100% - 20px));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .25), inset 0 0 50px rgba(107, 108, 255, .12);
+}
+/* reflexo diagonal passando pelo painel */
+.stage .playlist::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(115deg, transparent 42%, rgba(255, 255, 255, .07) 48%, transparent 54%);
+  background-size: 300% 100%;
+  animation: glare 9s ease-in-out infinite;
+}
+.stage .playlist-head {
+  align-items: center; gap: 12px;
+  padding: 8px 26px 8px 12px;
+  background: linear-gradient(180deg, #fff 0%, var(--ice) 38%, var(--ht-3) 52%, var(--ht-4) 100%);
+  color: var(--ht-0);
+  border-bottom: 1px solid rgba(255, 255, 255, .7);
+}
+.stage .pl-code { margin-left: auto; font: 9px var(--f-mono); letter-spacing: .12em; opacity: .65; }
+.stage #playlist { scrollbar-width: thin; scrollbar-color: var(--periwinkle) transparent; }
+.stage #playlist li { position: relative; background: none; border-bottom: 1px solid rgba(201, 210, 255, .1); }
+.stage #playlist li:nth-child(odd) { background: rgba(201, 210, 255, .035); }
+.stage #playlist button {
+  gap: 12px; padding: 8px 14px 8px 10px;
+  color: var(--silver);
+  transition: background .2s, transform .2s;
+}
+.stage #playlist button:hover {
+  background: linear-gradient(90deg, rgba(124, 134, 240, .28), transparent 80%);
+  box-shadow: inset 2px 0 0 var(--ice);
+}
+.stage #playlist button:hover .pl-thumb { --c: #fff; }
+.stage .pl-n { color: var(--accent); opacity: .85; }
+.pl-thumb {
+  position: relative; flex: none; padding: 3px;
+  background:
+    linear-gradient(var(--c) 0 0) top left / 8px 1px, linear-gradient(var(--c) 0 0) top left / 1px 8px,
+    linear-gradient(var(--c) 0 0) bottom right / 8px 1px, linear-gradient(var(--c) 0 0) bottom right / 1px 8px;
+  background-repeat: no-repeat;
+}
+.stage #playlist .pl-thumb img { display: block; width: 38px; height: 38px; object-fit: cover; border: 1px solid rgba(255, 255, 255, .35); }
+.stage .pl-t { flex: 1; min-width: 0; color: var(--white); font-size: 14px; }
+.stage .pl-t small {
+  display: block; margin-top: 2px;
+  font: 9px var(--f-wide); letter-spacing: .12em; text-transform: uppercase;
+  color: var(--muted);
+  overflow: hidden; text-overflow: ellipsis;
+}
+.pl-eq { display: none; align-items: flex-end; gap: 2px; height: 14px; flex: none; }
+.pl-eq i { width: 3px; height: 4px; background: var(--accent); box-shadow: 0 0 4px var(--accent); }
+
+/* linha atual: brilho de acento, cantoneiras acesas, eq */
+.stage #playlist li.is-current {
+  background: linear-gradient(90deg, rgba(34, 200, 255, .22), rgba(107, 108, 255, .14) 55%, transparent);
+  box-shadow: inset 3px 0 0 var(--accent), inset 0 0 0 1px rgba(34, 200, 255, .28);
+}
+:root[data-char="path"] .stage #playlist li.is-current { background: linear-gradient(90deg, rgba(230, 193, 122, .22), rgba(107, 108, 255, .12) 55%, transparent); }
+.stage #playlist li.is-current .pl-t { color: #fff; font-weight: 600; text-shadow: 0 0 10px var(--accent); }
+.stage #playlist li.is-current .pl-t small { color: var(--ice); }
+.stage #playlist li.is-current .pl-thumb { --c: var(--accent); filter: drop-shadow(0 0 6px var(--accent)); }
+.stage #playlist li.is-current .pl-eq { display: flex; }
+.player.is-playing ~ .playlist li.is-current .pl-eq i,
+.stage:has(.player.is-playing) #playlist li.is-current .pl-eq i { animation: eq .8s ease-in-out infinite alternate; }
+.pl-eq i:nth-child(2) { animation-delay: -.3s !important; }
+.pl-eq i:nth-child(3) { animation-delay: -.55s !important; }
+
+/* chip "now playing" com a mesma moldura */
+.np-chip {
+  gap: 12px;
+  padding: 8px 10px 10px 8px;
+  border: 1px solid rgba(201, 210, 255, .45);
+  background:
+    linear-gradient(var(--c) 0 0) top left / var(--l) var(--w), linear-gradient(var(--c) 0 0) top left / var(--w) var(--l),
+    linear-gradient(var(--c) 0 0) bottom right / var(--l) var(--w), linear-gradient(var(--c) 0 0) bottom right / var(--w) var(--l),
+    linear-gradient(160deg, rgba(42, 51, 168, .55), rgba(11, 16, 64, .92) 45%, rgba(5, 7, 24, .95));
+  background-repeat: no-repeat;
+  clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .3), 0 0 30px rgba(107, 108, 255, .45);
+  overflow: hidden;
+}
+.np-chip::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(115deg, transparent 40%, rgba(255, 255, 255, .12) 48%, transparent 56%);
+  background-size: 300% 100%;
+  animation: glare 6s ease-in-out infinite;
+}
+/* capa redonda com anel girando, como a lente do palco */
+.np-orb { position: relative; flex: none; width: 50px; height: 50px; display: grid; place-items: center; }
+.np-orb::before, .np-orb::after { content: ""; position: absolute; border-radius: 50%; }
+.np-orb::before { inset: 0; border: 1px dashed var(--ice); opacity: .7; animation: spin 10s linear infinite; }
+.np-orb::after { inset: 3px; box-shadow: 0 0 14px rgba(107, 108, 255, .8); }
+.np-chip .np-orb img { width: 42px; height: 42px; border-radius: 50%; border: 1px solid #fff; object-fit: cover; position: relative; z-index: 1; }
+.np-chip.is-playing .np-orb::before { border-color: var(--accent); animation-duration: 3s; }
+.np-chip.is-playing .np-orb img { animation: spin 14s linear infinite; }
+.np-text small { display: flex; align-items: center; gap: 8px; }
+.np-eq { display: inline-flex; align-items: flex-end; gap: 2px; height: 9px; overflow: hidden; }
+.np-eq i { width: 2px; height: 3px; background: var(--accent); }
+.np-chip.is-playing .np-eq i { animation: eq .8s ease-in-out infinite alternate; }
+.np-eq i:nth-child(2) { animation-delay: -.25s !important; }
+.np-eq i:nth-child(3) { animation-delay: -.5s !important; }
+.np-eq i:nth-child(4) { animation-delay: -.7s !important; }
+.np-bar { position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: rgba(201, 210, 255, .15); }
+.np-bar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--accent-deep), var(--accent)); box-shadow: 0 0 6px var(--accent); }
+/* playlist inteira, sem rolagem interna: fica parada ao lado do player */
+.stage #playlist { max-height: none; overflow: visible; }

@@ -15,7 +15,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Michroma&family=Saira:wdth,wght@75..125,100..900&family=Share+Tech+Mono&family=Cormorant+Garamond:ital,wght@1,300;1,400&family=Doto:wght@400..900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=5">
+  <link rel="stylesheet" href="style.css?v=7">
   <script type="importmap">
     {
       "imports": {
@@ -177,7 +177,7 @@
         </div>
 
         <section class="playlist" aria-label="Playlist">
-          <div class="playlist-head"><span>&gt; playlist</span><span id="pl-count"></span></div>
+          <div class="playlist-head"><span>&gt; playlist</span><span class="pl-code" aria-hidden="true">PLS-00 // QUEUE</span><span id="pl-count"></span></div>
           <ol id="playlist"></ol>
         </section>
       </section>
@@ -264,10 +264,14 @@
 
   <!-- ===== mini "now playing" (aparece quando o palco sai da tela) ===== -->
   <div class="np-chip" id="np-chip" hidden>
-    <img id="np-img" src="" alt="" width="40" height="40">
-    <span class="np-text"><small>NOW PLAYING</small><b id="np-title"></b></span>
+    <span class="np-orb" aria-hidden="true"><img id="np-img" src="" alt="" width="44" height="44"></span>
+    <span class="np-text">
+      <small>NOW PLAYING <span class="np-eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span></small>
+      <b id="np-title"></b>
+    </span>
     <button type="button" id="np-play" aria-label="Tocar / pausar">▶</button>
     <a href="#stage" aria-label="Ir para o player">↑</a>
+    <span class="np-bar" aria-hidden="true"><i id="np-bar"></i></span>
   </div>
 
   <!-- ===== ficha do lançamento ===== -->
@@ -282,8 +286,8 @@
     </article>
   </div>
 
-  <script src="albums.js?v=5"></script>
-  <script src="app.js?v=5"></script>
-  <script type="module" src="bg3d.js?v=5"></script>
+  <script src="albums.js?v=7"></script>
+  <script src="app.js?v=7"></script>
+  <script type="module" src="bg3d.js?v=7"></script>
 </body>
 </html>
