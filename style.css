@@ -782,6 +782,109 @@ img { display: block; }
 .b4 { background: linear-gradient(135deg, var(--violet), var(--ht-1)); }
 .b5 { background: #fff; color: #000; }
 
+/* ===================== palco: player no círculo + playlist ===================== */
+.stack { display: flex; flex-direction: column; gap: 40px; }
+.stage {
+  display: grid;
+  grid-template-columns: minmax(0, 560px) minmax(280px, 1fr);
+  gap: 40px;
+  align-items: start;
+  scroll-margin-top: 20px;
+}
+/* o player deixa de ser uma caixa: vira o círculo + um deck de vidro embaixo */
+.orb-player {
+  min-width: 0;
+  padding: 0; background: none; border: 0; clip-path: none; box-shadow: none;
+  -webkit-backdrop-filter: none; backdrop-filter: none;
+}
+.orb-player::before, .orb-player::after { display: none; }
+.orb-head { margin-bottom: 6px; align-items: center; }
+.orb { position: relative; width: 100%; aspect-ratio: 1; }
+.orb .rings { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.r4 { stroke: var(--ice); opacity: .45; animation: spin 60s linear infinite reverse; }
+
+.seek-track { fill: none; stroke: rgba(201, 210, 255, .18); stroke-width: 4; }
+.seek-prog {
+  fill: none; stroke: var(--accent); stroke-width: 4; stroke-linecap: round;
+  stroke-dasharray: 100; stroke-dashoffset: 100;
+  filter: drop-shadow(0 0 4px var(--accent));
+  transition: stroke-dashoffset .25s linear;
+}
+.seek-hit { fill: none; stroke: transparent; stroke-width: 24; pointer-events: stroke; cursor: pointer; }
+.seek-hit:focus-visible { stroke: rgba(201, 210, 255, .25); outline: none; }
+
+/* a lente: diâmetro 256/400 do círculo */
+.lens {
+  position: absolute; left: 18%; top: 18%; width: 64%; aspect-ratio: 1;
+  border-radius: 50%; overflow: hidden;
+  background: #000;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, .65), 0 0 40px rgba(107, 108, 255, .55), 0 0 90px rgba(34, 200, 255, .18);
+  isolation: isolate;
+}
+.lens .screen-media { position: absolute; inset: 0; aspect-ratio: auto; background: #000; }
+/* vídeo 16:9 cobrindo o círculo (corta as laterais) */
+.lens .screen-media #yt { position: absolute; top: 0; bottom: 0; left: -38.9%; right: auto; width: 177.8%; height: 100%; }
+.lens-cover { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.lens .screen-media::after {
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 32% 26%, rgba(255, 255, 255, .28), transparent 32%),
+    radial-gradient(circle, transparent 62%, rgba(5, 7, 24, .55) 100%),
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, .18) 0 1px, transparent 1px 3px);
+}
+.lens .screen-media.bc-mode { height: auto; }
+.lens .screen-media.bc-mode::after { display: block; }
+.player.is-playing .lens { animation: lens-pulse 2.4s ease-in-out infinite; }
+@keyframes lens-pulse { 50% { box-shadow: 0 0 0 1px rgba(255, 255, 255, .8), 0 0 60px rgba(107, 108, 255, .75), 0 0 120px rgba(34, 200, 255, .3); } }
+
+.orb .gesture-hint { inset: auto auto 7% 50%; transform: translateX(-50%); width: 62%; text-align: center; }
+.orb:has(.needs-gesture) .gesture-hint { display: grid; animation: blink 1.6s ease-in-out infinite; }
+
+.deck {
+  margin-top: 10px; padding: 12px 14px 14px;
+  background: linear-gradient(160deg, rgba(255, 255, 255, .08), transparent 30%), rgba(11, 16, 64, .72);
+  border: 1px solid rgba(201, 210, 255, .45);
+  clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px));
+}
+.deck .lcd { border: 1px solid rgba(201, 210, 255, .25); }
+.deck .controls { justify-content: center; }
+.deck #bc { display: block; width: 100%; height: 300px; margin-top: 12px; border: 1px solid var(--line); background: var(--navy); }
+.deck #bc[hidden] { display: none; }
+
+.stage .playlist { position: sticky; top: 16px; }
+.stage #playlist { max-height: min(720px, calc(100vh - 80px)); }
+.stage #playlist img { width: 34px; height: 34px; }
+.stage #playlist button { padding: 7px 12px; }
+.stage .pl-t { font-size: 13px; }
+
+/* lore: capa do EP no lugar do círculo */
+.origin { grid-template-columns: minmax(180px, 300px) minmax(0, 1fr); }
+.origin .crystal { position: relative; left: auto; top: auto; transform: none; width: 100%; }
+
+/* mini "now playing" */
+.np-chip {
+  position: fixed; right: 16px; bottom: 16px; z-index: 40;
+  display: flex; align-items: center; gap: 10px;
+  max-width: min(380px, calc(100vw - 32px));
+  padding: 6px 8px 6px 6px;
+  background: rgba(11, 16, 64, .9);
+  border: 1px solid rgba(201, 210, 255, .5);
+  box-shadow: 0 0 24px rgba(107, 108, 255, .4);
+}
+.np-chip[hidden] { display: none; }
+.np-chip img { width: 40px; height: 40px; object-fit: cover; border-radius: 50%; border: 1px solid #fff; }
+.np-text { display: grid; min-width: 0; }
+.np-text small { font: 8px var(--f-wide); letter-spacing: .2em; color: var(--accent); }
+.np-text b { font: 500 13px var(--f-thin); color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.np-chip button, .np-chip a {
+  flex: none; width: 32px; height: 32px; border-radius: 50%;
+  display: grid; place-items: center;
+  border: 1px solid rgba(255, 255, 255, .6);
+  background: radial-gradient(circle at 50% 75%, var(--accent), var(--accent-deep) 60%, var(--ht-0));
+  color: #fff; font-size: 11px; text-decoration: none;
+}
+.np-chip button:disabled { opacity: .4; }
+
 /* ===================== responsivo ===================== */
 @media (max-width: 980px) {
   .site, .hero { padding: 16px; }
@@ -814,4 +917,13 @@ img { display: block; }
   *, *::before, *::after { animation: none !important; transition: none !important; }
   .ticker span, .lcd-marquee span { padding-left: 0; }
   .ticker span { white-space: normal; }
+}
+
+@media (max-width: 980px) {
+  .stage { grid-template-columns: minmax(0, 1fr); }
+  .orb-player { width: min(520px, 100%); margin: 0 auto; }
+  .stage .playlist { position: static; }
+  .stage #playlist { max-height: 420px; }
+  .origin { grid-template-columns: 1fr; }
+  .origin .crystal { max-width: 260px; margin: 0 auto; }
 }

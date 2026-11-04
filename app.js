@@ -27,7 +27,8 @@
     title: $("#lcd-title"), time: $("#lcd-time"), src: $("#lcd-src"), log: $("#log"),
     seek: $("#seek"), fill: $("#seek-fill"),
     play: $("#btn-play"), prev: $("#btn-prev"), next: $("#btn-next"), srcBtn: $("#btn-src"), info: $("#btn-info"),
-    volume: $("#volume"), playlist: $("#playlist"), ticker: $("#ticker")
+    volume: $("#volume"), playlist: $("#playlist"), ticker: $("#ticker"),
+    lensCover: $("#lens-cover"), chip: $("#np-chip"), npImg: $("#np-img"), npTitle: $("#np-title"), npPlay: $("#np-play")
   };
 
   let current = -1;      // índice em albums
@@ -61,6 +62,13 @@
 
   function setPlaying(on) {
     el.player.classList.toggle("is-playing", on);
+    el.npPlay.textContent = on ? "❚❚" : "▶";
+  }
+
+  // anel de progresso em volta da lente (pathLength = 100)
+  function setProgress(pct) {
+    el.fill.style.strokeDashoffset = 100 - pct;
+    el.seek.setAttribute("aria-valuenow", Math.round(pct));
   }
 
   function setLcd(text) {
@@ -90,7 +98,7 @@
     mode = "yt";
     el.bc.hidden = true; el.bc.removeAttribute("src");
     el.media.classList.remove("bc-mode");
-    el.play.disabled = false;
+    el.play.disabled = el.npPlay.disabled = false;
     el.src.textContent = "YOUTUBE";
     el.srcBtn.textContent = "BC";
   }
@@ -104,8 +112,8 @@
     el.bc.src = bcEmbed(a);
     el.bc.hidden = false;
     el.media.classList.add("bc-mode");
-    el.play.disabled = true;
-    el.fill.style.width = "0";
+    el.play.disabled = el.npPlay.disabled = true;
+    setProgress(0);
     el.time.textContent = reason || "use o player ↑";
     el.src.textContent = "BANDCAMP";
     el.srcBtn.textContent = "YT";
@@ -134,6 +142,10 @@
     }
 
     el.idle.hidden = true;
+    el.lensCover.src = cover(a, 16);
+    el.npImg.src = cover(a, 3);
+    el.npTitle.textContent = `${a.artist} — ${a.title}`;
+    syncChip();
     setLcd(lcdText());
     el.ticker.textContent = `❯ now playing ❯ ${a.artist} — ${a.title} ❯ ${a.label} ❯ ${a.year} ❯ ${a.code} ❯ apoie o artista ❯`;
     el.srcBtn.disabled = !(list.length && a.bandcampId);
@@ -229,8 +241,7 @@
     if (!d) return;
     el.time.textContent = `${fmt(t)} / ${fmt(d)}`;
     const pct = (t / d) * 100;
-    el.fill.style.width = pct + "%";
-    el.seek.setAttribute("aria-valuenow", Math.round(pct));
+    setProgress(pct);
   }, 250);
 
   function seekTo(frac) {
@@ -238,9 +249,11 @@
     const d = yt.getDuration();
     if (d) yt.seekTo(Math.min(Math.max(frac, 0), 1) * d, true);
   }
+  // o anel começa no topo e corre no sentido horário: o ângulo do clique vira a posição
   el.seek.addEventListener("click", (e) => {
     const r = el.seek.getBoundingClientRect();
-    seekTo((e.clientX - r.left) / r.width);
+    const ang = Math.atan2(e.clientY - (r.top + r.height / 2), e.clientX - (r.left + r.width / 2));
+    seekTo((((ang * 180) / Math.PI + 90 + 360) % 360) / 360);
   });
   el.seek.addEventListener("keydown", (e) => {
     if (mode !== "yt" || !ytReady) return;
@@ -262,6 +275,12 @@
   });
   el.info.addEventListener("click", () => openModal(albums[current < 0 ? 0 : current]));
   el.volume.addEventListener("input", () => { if (ytReady) yt.setVolume(+el.volume.value); });
+
+  el.npPlay.addEventListener("click", togglePlay);
+  let stageVisible = true;
+  const syncChip = () => { el.chip.hidden = stageVisible || current < 0; };
+  new IntersectionObserver(([entry]) => { stageVisible = entry.isIntersecting; syncChip(); }, { threshold: 0.15 })
+    .observe($("#stage"));
 
   /* ================= playlist ================= */
   el.playlist.innerHTML = albums.map((a, i) => `
