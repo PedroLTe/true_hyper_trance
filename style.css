@@ -1099,3 +1099,13 @@ img { display: block; }
 :root[data-bg="day"] .hh-steps { stroke: var(--ink-neon); filter: drop-shadow(0 0 4px rgba(47, 60, 230, .6)); }
 :root[data-bg="day"] .scroll-cue i { background: linear-gradient(var(--ink-neon), transparent); box-shadow: 0 0 6px rgba(47, 60, 230, .6); }
 :root[data-bg="day"] .card-title:hover { color: #2a33e0; }
+
+/* tema claro: círculo do player e visualizer também em "neon escuro" */
+:root[data-bg="day"] .orb .ring { stroke: var(--ink-neon); }
+:root[data-bg="day"] .orb .r1 { opacity: .55; }
+:root[data-bg="day"] .orb .r3 { opacity: .5; }
+:root[data-bg="day"] .orb .r4 { opacity: .5; }
+:root[data-bg="day"] .orb .r2 text { fill: var(--ink-neon); opacity: .85; }
+:root[data-bg="day"] .orb .rings { filter: drop-shadow(0 0 3px rgba(47, 60, 230, .55)) drop-shadow(0 0 10px rgba(47, 60, 230, .25)); }
+:root[data-bg="day"] .seek-track { stroke: rgba(13, 17, 80, .22); }
+:root[data-bg="day"] .viz { filter: drop-shadow(0 0 6px rgba(47, 60, 230, .5)); }

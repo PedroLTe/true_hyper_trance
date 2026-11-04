@@ -53,17 +53,22 @@
 
     // degradê vertical igual nas duas metades: pontas lilás, perto da linha branco
     const grad = g.createLinearGradient(0, 0, 0, H);
-    grad.addColorStop(0, "rgba(124, 134, 240, .35)");
-    grad.addColorStop(0.22, "#C9D2FF");
-    grad.addColorStop(0.42, acc);
-    grad.addColorStop(0.5, "#ffffff");
-    grad.addColorStop(0.58, acc);
-    grad.addColorStop(0.78, "#C9D2FF");
-    grad.addColorStop(1, "rgba(124, 134, 240, .35)");
+    // tema claro: "neon escuro" (índigo no centro, azul-elétrico nas pontas) em vez de branco
+    const day = document.documentElement.dataset.bg === "day";
+    const stops = day
+      ? ["rgba(47, 60, 230, .35)", "#4a56e8", "#2a33e0", "#0d1150"]
+      : ["rgba(124, 134, 240, .35)", "#C9D2FF", acc, "#ffffff"];
+    grad.addColorStop(0, stops[0]);
+    grad.addColorStop(0.22, stops[1]);
+    grad.addColorStop(0.42, stops[2]);
+    grad.addColorStop(0.5, stops[3]);
+    grad.addColorStop(0.58, stops[2]);
+    grad.addColorStop(0.78, stops[1]);
+    grad.addColorStop(1, stops[0]);
     g.strokeStyle = grad;
     g.lineWidth = lw;
     g.lineCap = "round";
-    g.globalCompositeOperation = "lighter";
+    g.globalCompositeOperation = day ? "source-over" : "lighter"; // somar luz some no branco
     g.beginPath();
     for (let i = 0; i < n; i++) {
       // suaviza com os vizinhos: a silhueta vira uma onda contínua
@@ -79,7 +84,7 @@
     g.globalCompositeOperation = "source-over";
 
     // linha central
-    g.fillStyle = "rgba(255, 255, 255, .55)";
+    g.fillStyle = day ? "rgba(13, 17, 80, .6)" : "rgba(255, 255, 255, .55)";
     g.fillRect(0, mid - 0.5, W, 1);
   }
 
