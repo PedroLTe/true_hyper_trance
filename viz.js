@@ -49,8 +49,8 @@
     await audio.resume();
     source = audio.createMediaStreamSource(stream);
     analyser = audio.createAnalyser();
-    analyser.fftSize = 2048;              // janela de ~43 ms: menos atraso que 4096
-    analyser.smoothingTimeConstant = 0.45; // menos média entre quadros = resposta mais imediata
+    analyser.fftSize = 1024;              // janela de ~21 ms @ 48 kHz (graves com ~47 Hz por faixa)
+    analyser.smoothingTimeConstant = 0.25; // quase sem média entre quadros: a descida das barras é feita no draw()
     analyser.minDecibels = -88;
     analyser.maxDecibels = -18;
     freq = new Uint8Array(analyser.frequencyBinCount);
@@ -85,7 +85,9 @@
       }
       await attach(s);
       store.set("tr01-viz-device", s.getAudioTracks()[0]?.getSettings().deviceId || deviceId || "");
-      setMode(/monitor/i.test(label) ? `LIVE // ${label}` : `MIC // ${label} (escolha um "Monitor of…" para ouvir o PC)`, true);
+      const lat = s.getAudioTracks()[0]?.getSettings().latency;
+      const latTxt = typeof lat === "number" && lat > 0 ? ` // captura ${Math.round(lat * 1000)} ms` : "";
+      setMode(/monitor/i.test(label) ? `LIVE // ${label}${latTxt}` : `MIC // ${label} (escolha um "Monitor of…" para ouvir o PC)`, true);
     } catch (err) {
       store.set("tr01-viz-device", null);
       setMode(err.name === "NotAllowedError" ? "SIM // permissão negada" : `SIM // ${err.name || "erro"}`, false);
