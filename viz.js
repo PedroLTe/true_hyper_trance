@@ -49,8 +49,8 @@
     await audio.resume();
     source = audio.createMediaStreamSource(stream);
     analyser = audio.createAnalyser();
-    analyser.fftSize = 4096;
-    analyser.smoothingTimeConstant = 0.72;
+    analyser.fftSize = 2048;              // janela de ~43 ms: menos atraso que 4096
+    analyser.smoothingTimeConstant = 0.45; // menos média entre quadros = resposta mais imediata
     analyser.minDecibels = -88;
     analyser.maxDecibels = -18;
     freq = new Uint8Array(analyser.frequencyBinCount);
@@ -72,7 +72,7 @@
     try {
       const s = await navigator.mediaDevices.getUserMedia({
         audio: {
-          echoCancellation: false, noiseSuppression: false, autoGainControl: false,
+          echoCancellation: false, noiseSuppression: false, autoGainControl: false, latency: 0,
           ...(deviceId ? { deviceId: { exact: deviceId } } : {})
         }
       });
@@ -191,7 +191,8 @@
       // suaviza com os vizinhos: a silhueta vira uma onda contínua, como na referência
       const v = (raw[Math.max(0, i - 1)] + raw[i] * 2 + raw[Math.min(n - 1, i + 1)]) / 4;
       const b = bars[i];
-      b.v += (v - b.v) * Math.min(1, dt * (v > b.v ? 22 : 7)); // sobe rápido, desce devagar
+      const rise = analyser ? 1 : Math.min(1, dt * 22), fall = Math.min(1, dt * (analyser ? 14 : 7));
+      b.v += (v - b.v) * (v > b.v ? rise : fall); // ao vivo: sobe na hora, desce rápido
       const h = Math.max(0.5, b.v * max);
       const x = i * step + step / 2;
       g.moveTo(x, mid - h);
