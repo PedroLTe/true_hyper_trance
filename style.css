@@ -1068,14 +1068,15 @@ img { display: block; }
 :root[data-bg="day"] .bg-scan {
   background:
     repeating-linear-gradient(0deg, rgba(30, 40, 120, .05) 0 1px, transparent 1px 3px),
-    radial-gradient(ellipse 75% 70% at 58% 40%, transparent 40%, rgba(60, 72, 160, .35) 100%),
-    linear-gradient(90deg, rgba(30, 40, 120, .25), transparent 40%);
+    radial-gradient(ellipse 75% 70% at 58% 40%, transparent 50%, rgba(60, 72, 160, .16) 100%),
+    linear-gradient(90deg, rgba(30, 40, 120, .1), transparent 40%);
 }
 :root[data-bg="day"] .bg-halftone {
   background: radial-gradient(circle, rgba(42, 51, 168, .55) 1px, transparent 1.6px) 0 0 / 7px 7px;
   mix-blend-mode: multiply;
 }
-:root[data-bg="day"] .bg-dim { background: #1b2470; opacity: min(.38, calc(var(--sp, 0) * 1.8)); }
+/* de dia, descer a página lava o fundo para um branco uniforme (em vez de azular) */
+:root[data-bg="day"] .bg-dim { background: #eef1fb; opacity: min(.72, calc(var(--sp, 0) * 3)); }
 /* textos que ficam direto sobre o fundo: sombra azul-marinho para não sumir no branco */
 /* "neon escuro": o inverso do neon branco da noite. Texto índigo quase preto com brilho azul-elétrico em volta */
 :root[data-bg="day"] {
