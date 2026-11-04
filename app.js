@@ -3,6 +3,7 @@
   const albums = window.HT_ALBUMS;
   const shelves = window.HT_SHELVES;
   const byId = Object.fromEntries(albums.map((a, i) => [a.id, { ...a, index: i }]));
+  const dayIds = new Set(shelves.filter((s) => s.bg === "day").flatMap((s) => s.ids)); // fundo claro
   const $ = (s) => document.querySelector(s);
 
   const cover = (a, size = 2) => a.cover || `https://f4.bcbits.com/img/a${a.art}_${size}.jpg`;
@@ -154,7 +155,10 @@
     el.ticker.textContent = `❯ now playing ❯ ${a.artist} — ${a.title} ❯ ${a.label} ❯ ${a.year} ❯ ${a.code} ❯ apoie o artista ❯`;
     el.srcBtn.disabled = !(list.length && a.bandcampId);
     markCurrent();
-    if (autoplay) window.TRBG?.dive();
+    if (autoplay) {
+      window.TRBG?.dive();
+      window.TRBG?.setTheme?.(dayIds.has(a.id) ? "day" : "night");
+    }
     log(`/load ${a.code} :: ${a.id}`);
 
     const want = source || (queue.length ? "yt" : "bc");

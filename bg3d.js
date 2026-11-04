@@ -4,7 +4,8 @@
    - lâminas de cristal cromado
    - núcleo de metal líquido deformando
    - ambiente de reflexo HDR: céu escuro + faixas de luz fortes, para o cromo ter contraste de espelho
-   Rolar a página aproxima a câmera. Expõe window.TRBG = { dive(), setColor(hex) }.
+   Dois temas: "night" (cobalto, padrão) e "day" (céu claro, para a discografia do nuphory).
+   Rolar a página aproxima a câmera. Expõe window.TRBG = { dive(), setColor(hex), setTheme(name) }.
    Sem WebGL: fica o fundo CSS. Com prefers-reduced-motion: um quadro estático. */
 import * as THREE from "three";
 import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
@@ -27,20 +28,26 @@ let dpr = Math.min(devicePixelRatio || 1, small() ? 1.25 : 1.5);
 renderer.setPixelRatio(dpr);
 renderer.setSize(innerWidth, innerHeight, false);
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.0;
+renderer.toneMappingExposure = 0.92;
 renderer.setClearColor(0x05071c, 1);
 
 const scene = new THREE.Scene();
 scene.fog = new THREE.FogExp2(0x070a2a, 0.012);
 const pmrem = new THREE.PMREMGenerator(renderer);
-scene.environment = pmrem.fromScene(chromeEnvironment(), 0).texture;
+const envNight = pmrem.fromScene(chromeEnvironment(false), 0).texture;
+const envDay = pmrem.fromScene(chromeEnvironment(true), 0).texture;
+scene.environment = envNight;
 
 const camera = new THREE.PerspectiveCamera(50, innerWidth / innerHeight, 0.1, 120);
 camera.position.set(0, 0, 9);
 
-/* ambiente de reflexo HDR: céu escuro cobalto e faixas de luz (valores > 1).
+/* ambiente de reflexo HDR: céu (escuro cobalto à noite, branco-lavanda de dia) e faixas de luz (valores > 1).
    É o contraste claro/escuro que faz o metal parecer espelho em vez de massinha. */
-function chromeEnvironment() {
+function chromeEnvironment(day) {
+  const sky = day
+    ? { top: "1.45,1.5,1.85", mid: ".6,.66,1.", low: ".18,.22,.52" }
+    : { top: ".3,.33,.9", mid: ".025,.03,.12", low: ".003,.004,.02" };
+  const kLight = day ? 0.9 : 0.8; // à noite as faixas ficam 20% mais fracas: menos branco estourado
   const env = new THREE.Scene();
   env.add(new THREE.Mesh(
     new THREE.SphereGeometry(20, 48, 24),
@@ -50,7 +57,7 @@ function chromeEnvironment() {
       fragmentShader: `varying vec3 vP;
         void main(){
           vec3 d = normalize(vP);
-          vec3 top = vec3(.3,.33,.9), mid = vec3(.025,.03,.12), low = vec3(.003,.004,.02);
+          vec3 top = vec3(${sky.top}), mid = vec3(${sky.mid}), low = vec3(${sky.low});
           vec3 c = d.y > 0. ? mix(mid, top, pow(d.y, 1.6)) : mix(mid, low, pow(-d.y, .6));
           c += vec3(.5,.45,1.2) * pow(max(0., 1. - abs(d.y - .15)), 18.) * .6; // linha de horizonte lilás
           gl_FragColor = vec4(c, 1.);
@@ -60,7 +67,7 @@ function chromeEnvironment() {
   const strip = (w, h, pos, rot, rgb) => {
     const m = new THREE.Mesh(
       new THREE.PlaneGeometry(w, h),
-      new THREE.MeshBasicMaterial({ color: new THREE.Color(...rgb), side: THREE.DoubleSide, toneMapped: false })
+      new THREE.MeshBasicMaterial({ color: new THREE.Color(...rgb.map((v) => v * kLight)), side: THREE.DoubleSide, toneMapped: false })
     );
     m.position.set(...pos); m.rotation.set(...rot); env.add(m);
   };
@@ -243,10 +250,10 @@ function glowTexture(stops) {
 }
 const softGlow = glowTexture([[0, "rgba(255,255,255,1)"], [0.25, "rgba(200,206,255,.55)"], [0.6, "rgba(110,118,240,.15)"], [1, "rgba(0,0,0,0)"]]);
 const dotTex = glowTexture([[0, "rgba(255,255,255,1)"], [0.4, "rgba(220,226,255,.6)"], [1, "rgba(0,0,0,0)"]]);
-const halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: softGlow, color: 0x8f99ff, transparent: true, opacity: 0.35, blending: THREE.AdditiveBlending, depthWrite: false, fog: false }));
+const halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: softGlow, color: 0x8f99ff, transparent: true, opacity: 0.25, blending: THREE.AdditiveBlending, depthWrite: false, fog: false }));
 halo.scale.setScalar(5.5);
 burst.add(halo);
-const keyLight = new THREE.PointLight(0xdfe4ff, 6, 12, 2);
+const keyLight = new THREE.PointLight(0xdfe4ff, 4, 12, 2);
 burst.add(keyLight);
 
 const LINES = small() ? 110 : 200;
@@ -299,9 +306,47 @@ scene.add(grid);
 /* ---------- pós-processamento ---------- */
 const composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
-const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth / 2, innerHeight / 2), 0.7, 0.5, 0.8);
+const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth / 2, innerHeight / 2), 0.55, 0.5, 0.8);
 composer.addPass(bloom);
 composer.addPass(new OutputPass());
+
+/* ---------- temas ---------- */
+const C = (h) => new THREE.Color(h);
+const THEMES = [
+  { // night
+    clear: C(0x05071c), fog: C(0x070a2a), fogD: 0.012, exposure: 0.92, bloom: 0.55, thr: 0.8, halo: 0.25,
+    white: C(0xffffff), lilac: C(0xa7b0ff), blade: C(0xd6dbff), grid: C(0x7c86f0)
+  },
+  { // day: céu claro, cromo prateado-lavanda (as capas claras do nuphory)
+    clear: C(0xe4e9f8), fog: C(0xdfe5f7), fogD: 0.02, exposure: 1.0, bloom: 0.16, thr: 0.95, halo: 0,
+    white: C(0xd5dbff), lilac: C(0x8590ec), blade: C(0xbfc7ff), grid: C(0x5a66d6)
+  }
+];
+let themeK = 0, themeTarget = 0;
+const tmpC = new THREE.Color();
+const lerp = (a, b, k) => a + (b - a) * k;
+
+function applyTheme(dt) {
+  themeK = dt ? themeK + (themeTarget - themeK) * Math.min(1, dt * 1.6) : themeTarget;
+  const [n, d] = THEMES, k = themeK;
+  renderer.setClearColor(tmpC.lerpColors(n.clear, d.clear, k), 1);
+  scene.fog.color.lerpColors(n.fog, d.fog, k);
+  scene.fog.density = lerp(n.fogD, d.fogD, k);
+  renderer.toneMappingExposure = lerp(n.exposure, d.exposure, k);
+  chromeWhite.color.lerpColors(n.white, d.white, k);
+  chromeLilac.color.lerpColors(n.lilac, d.lilac, k);
+  bladeChrome.color.lerpColors(n.blade, d.blade, k);
+  gridMat.uniforms.uColor.value.lerpColors(n.grid, d.grid, k);
+  halo.material.opacity = lerp(n.halo, d.halo, k);
+  bloom.strength = lerp(n.bloom, d.bloom, k) + dive * lerp(0.8, 0.3, k);
+  bloom.threshold = lerp(n.thr, d.thr, k);
+  // troca o reflexo no meio da transição (escondido pelo flash do "dive");
+  // brilho aditivo some no branco, então de dia grade e riscos usam mistura normal
+  const isDay = k > 0.5;
+  scene.environment = isDay ? envDay : envNight;
+  const blend = isDay ? THREE.NormalBlending : THREE.AdditiveBlending;
+  gridMat.blending = lineMat.blending = blend;
+}
 
 /* ---------- estado ---------- */
 const m4 = new THREE.Matrix4(), v3 = new THREE.Vector3(), s3 = new THREE.Vector3(), qRoll = new THREE.Quaternion(), qq = new THREE.Quaternion();
@@ -353,7 +398,7 @@ function update(dt) {
   blob.rotation.set(t * 0.2, t * 0.3, 0);
   blob.scale.setScalar(1 + dive * 0.5);
   halo.scale.setScalar(5.5 * (1 + dive * 0.3));
-  keyLight.intensity = 6 + dive * 25;
+  keyLight.intensity = 4 + dive * 20;
 
   for (let i = 0; i < LINES; i++) {
     const L = lineData[i];
@@ -367,7 +412,7 @@ function update(dt) {
 
   sparks.rotation.y = -t * 0.02;
   gridMat.uniforms.uTime.value = t * (1 + dive * 6);
-  bloom.strength = 0.7 + dive * 0.8;
+  applyTheme(dt);
 }
 
 function frame(now) {
@@ -430,6 +475,13 @@ window.TRBG = {
     halo.material.color.copy(c).lerp(new THREE.Color(0xb9c2ff), 0.6);
     if (reduce.matches) still();
   }
+};
+window.TRBG.setTheme = (name) => {
+  const target = name === "day" ? 1 : 0;
+  if (target === themeTarget) return;
+  themeTarget = target;
+  document.documentElement.dataset.bg = target ? "day" : "night";
+  if (reduce.matches) still(); else window.TRBG.dive();
 };
 window.TRBG.setColor(char[document.documentElement.dataset.char] || char.angel);
 

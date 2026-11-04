@@ -265,7 +265,7 @@ window.HT_ALBUMS = [
   }
 ];
 
-/* Fileiras do site. "ranked" mostra #1, #2… */
+/* Fileiras do site. "ranked" mostra #1, #2…; bg: "day" troca o fundo 3D para o tema claro ao tocar */
 window.HT_SHELVES = [
   {
     title: "hypertrance :: selo", code: "SEL-01", note: "the ultimate in y2k music and art",
@@ -273,6 +273,7 @@ window.HT_SHELVES = [
   },
   {
     title: "nuphory :: discografia", code: "NPH-02", note: "do HYPERTRANCE (2021) ao gravity breaker (2026)",
+    bg: "day", // tocar daqui deixa o fundo 3D claro
     ids: ["hypertrance-single", "final-gate", "re-vision", "nvision", "ditherdream1", "gravity-breaker", "digital-dreams-1", "digital-dreams-2"]
   }
 ];

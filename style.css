@@ -1081,3 +1081,30 @@ img { display: block; }
   border-top: 1px solid rgba(201, 210, 255, .35);
   border-bottom: 1px solid rgba(201, 210, 255, .35);
 }
+
+/* ===================== fundo claro (tocando a discografia do nuphory) ===================== */
+.bg-scan, .bg-halftone, .bg-dim { transition: opacity 1.2s ease, background 1.2s ease; }
+:root[data-bg="day"] .bg-scan {
+  background:
+    repeating-linear-gradient(0deg, rgba(30, 40, 120, .05) 0 1px, transparent 1px 3px),
+    radial-gradient(ellipse 75% 70% at 58% 40%, transparent 40%, rgba(60, 72, 160, .35) 100%),
+    linear-gradient(90deg, rgba(30, 40, 120, .25), transparent 40%);
+}
+:root[data-bg="day"] .bg-halftone {
+  background: radial-gradient(circle, rgba(42, 51, 168, .55) 1px, transparent 1.6px) 0 0 / 7px 7px;
+  mix-blend-mode: multiply;
+}
+:root[data-bg="day"] .bg-dim { background: #1b2470; opacity: min(.38, calc(var(--sp, 0) * 1.8)); }
+/* textos que ficam direto sobre o fundo: sombra azul-marinho para não sumir no branco */
+/* textos que ficam direto sobre o fundo viram azul-marinho, como nas capas claras */
+:root[data-bg="day"] :is(.hero-hud, .hero-coords, .scroll-cue, .masthead .hud-row, .tagline, .ticker, .edge-mark,
+  .orb-head, .viz-hud > span, .shelf-head, .shelf-head .section-title, .card-meta, .card-title, .card-artist, .card-genre, .hh-spec) {
+  color: #18205e;
+  text-shadow: 0 0 6px rgba(255, 255, 255, .7);
+}
+:root[data-bg="day"] .hh-logo b { border-color: #18205e; }
+:root[data-bg="day"] .hh-steps { stroke: #18205e; }
+:root[data-bg="day"] .scroll-cue i { background: linear-gradient(#18205e, transparent); }
+:root[data-bg="day"] .shelf-note { color: #2a33a8; }
+:root[data-bg="day"] .logo { filter: drop-shadow(0 0 6px rgba(5, 7, 28, .85)) drop-shadow(0 0 1px rgba(5, 7, 28, 1)); }
+:root[data-bg="day"] .footer p { color: #18205e; }
