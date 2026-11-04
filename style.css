@@ -1077,15 +1077,24 @@ img { display: block; }
 }
 :root[data-bg="day"] .bg-dim { background: #1b2470; opacity: min(.38, calc(var(--sp, 0) * 1.8)); }
 /* textos que ficam direto sobre o fundo: sombra azul-marinho para não sumir no branco */
-/* textos que ficam direto sobre o fundo viram azul-marinho, como nas capas claras */
-:root[data-bg="day"] :is(.hero-hud, .hero-coords, .scroll-cue, .masthead .hud-row, .tagline, .ticker, .edge-mark,
-  .orb-head, .shelf-head, .shelf-head .section-title, .card-meta, .card-title, .card-artist, .card-genre, .hh-spec) {
-  color: #18205e;
-  text-shadow: 0 0 6px rgba(255, 255, 255, .7);
+/* "neon escuro": o inverso do neon branco da noite. Texto índigo quase preto com brilho azul-elétrico em volta */
+:root[data-bg="day"] {
+  --ink-neon: #0d1150;
+  --glow-neon: 0 0 1px rgba(13, 17, 80, .9), 0 0 6px rgba(47, 60, 230, .55), 0 0 16px rgba(47, 60, 230, .35);
 }
-:root[data-bg="day"] .hh-logo b { border-color: #18205e; }
-:root[data-bg="day"] .hh-steps { stroke: #18205e; }
-:root[data-bg="day"] .scroll-cue i { background: linear-gradient(#18205e, transparent); }
-:root[data-bg="day"] .shelf-note { color: #2a33a8; }
-:root[data-bg="day"] .logo { filter: drop-shadow(0 0 6px rgba(5, 7, 28, .85)) drop-shadow(0 0 1px rgba(5, 7, 28, 1)); }
-:root[data-bg="day"] .footer p { color: #18205e; }
+:root[data-bg="day"] :is(.hero-hud, .hero-coords, .scroll-cue, .masthead .hud-row, .tagline, .ticker, .edge-mark,
+  .orb-head, .shelf-head, .shelf-head .section-title, .shelf-note, .card-meta, .card-title, .card-artist, .card-genre,
+  .hh-spec, .footer p) {
+  color: var(--ink-neon);
+  text-shadow: var(--glow-neon);
+}
+:root[data-bg="day"] .logo-code { color: #2a33e0; text-shadow: 0 0 8px rgba(47, 60, 230, .7); }
+/* o logo em contorno: traço escuro + brilho azul, como o branco brilha à noite */
+:root[data-bg="day"] .logo {
+  -webkit-text-stroke-color: var(--ink-neon);
+  filter: drop-shadow(0 0 4px rgba(47, 60, 230, .7)) drop-shadow(0 0 14px rgba(47, 60, 230, .4));
+}
+:root[data-bg="day"] .hh-logo b { border-color: var(--ink-neon); box-shadow: 0 0 8px rgba(47, 60, 230, .45), inset 0 0 6px rgba(47, 60, 230, .3); }
+:root[data-bg="day"] .hh-steps { stroke: var(--ink-neon); filter: drop-shadow(0 0 4px rgba(47, 60, 230, .6)); }
+:root[data-bg="day"] .scroll-cue i { background: linear-gradient(var(--ink-neon), transparent); box-shadow: 0 0 6px rgba(47, 60, 230, .6); }
+:root[data-bg="day"] .card-title:hover { color: #2a33e0; }
