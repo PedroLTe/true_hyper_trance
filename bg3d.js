@@ -1,7 +1,10 @@
-/* TR-01 :: fundo 3D — explosão de cacos de cromo e vidro (clima da capa "exoplanet '02")
-   three.js 0.187.0 via importmap. Cacos em InstancedMesh, núcleo branco estourado com bloom,
-   riscos de velocidade, faíscas e grade em perspectiva. Rolar a página aproxima a câmera.
-   Expõe window.TRBG = { dive(), setColor(hex) } para o app.js.
+/* TR-01 :: fundo 3D — cromo líquido (clima das capas "exoplanet '02" e "NEOY2K")
+   three.js 0.187.0 via importmap.
+   - fitas curvas espelhadas que ondulam (deformação no vertex shader)
+   - lâminas de cristal cromado
+   - núcleo de metal líquido deformando
+   - ambiente de reflexo HDR: céu escuro + faixas de luz fortes, para o cromo ter contraste de espelho
+   Rolar a página aproxima a câmera. Expõe window.TRBG = { dive(), setColor(hex) }.
    Sem WebGL: fica o fundo CSS. Com prefers-reduced-motion: um quadro estático. */
 import * as THREE from "three";
 import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
@@ -15,7 +18,7 @@ const small = () => innerWidth < 760;
 
 let renderer;
 try {
-  renderer = new THREE.WebGLRenderer({ canvas, antialias: false, powerPreference: "high-performance" });
+  renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: "high-performance" });
 } catch (e) {
   canvas.remove(); // sem WebGL: o fundo CSS assume
   throw e;
@@ -24,47 +27,208 @@ let dpr = Math.min(devicePixelRatio || 1, small() ? 1.25 : 1.5);
 renderer.setPixelRatio(dpr);
 renderer.setSize(innerWidth, innerHeight, false);
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 0.95;
+renderer.toneMappingExposure = 1.0;
 renderer.setClearColor(0x05071c, 1);
 
 const scene = new THREE.Scene();
-scene.fog = new THREE.FogExp2(0x0a0e36, 0.045);
+scene.fog = new THREE.FogExp2(0x070a2a, 0.012);
 const pmrem = new THREE.PMREMGenerator(renderer);
-scene.environment = pmrem.fromScene(skyEnvironment(), 0.02).texture;
+scene.environment = pmrem.fromScene(chromeEnvironment(), 0).texture;
 
-/* ambiente de reflexo: céu cobalto → lilás com algumas faixas de luz branca,
-   para o cromo refletir azul (como na capa) em vez de um estúdio branco */
-function skyEnvironment() {
+const camera = new THREE.PerspectiveCamera(50, innerWidth / innerHeight, 0.1, 120);
+camera.position.set(0, 0, 9);
+
+/* ambiente de reflexo HDR: céu escuro cobalto e faixas de luz (valores > 1).
+   É o contraste claro/escuro que faz o metal parecer espelho em vez de massinha. */
+function chromeEnvironment() {
   const env = new THREE.Scene();
-  const sky = new THREE.Mesh(
-    new THREE.SphereGeometry(10, 32, 16),
+  env.add(new THREE.Mesh(
+    new THREE.SphereGeometry(20, 48, 24),
     new THREE.ShaderMaterial({
       side: THREE.BackSide,
       vertexShader: `varying vec3 vP; void main(){ vP = position; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.); }`,
       fragmentShader: `varying vec3 vP;
         void main(){
-          float h = normalize(vP).y;
-          vec3 top = vec3(.86,.88,1.), mid = vec3(.24,.27,.62), low = vec3(.02,.03,.1);
-          vec3 c = h > 0. ? mix(mid, top, pow(h, .8)) : mix(mid, low, pow(-h, .5));
+          vec3 d = normalize(vP);
+          vec3 top = vec3(.3,.33,.9), mid = vec3(.025,.03,.12), low = vec3(.003,.004,.02);
+          vec3 c = d.y > 0. ? mix(mid, top, pow(d.y, 1.6)) : mix(mid, low, pow(-d.y, .6));
+          c += vec3(.5,.45,1.2) * pow(max(0., 1. - abs(d.y - .15)), 18.) * .6; // linha de horizonte lilás
           gl_FragColor = vec4(c, 1.);
         }`
     })
-  );
-  env.add(sky);
-  const strip = (w, h, pos, rot, k) => {
-    const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ color: new THREE.Color(k, k, k * 1.05), side: THREE.DoubleSide }));
+  ));
+  const strip = (w, h, pos, rot, rgb) => {
+    const m = new THREE.Mesh(
+      new THREE.PlaneGeometry(w, h),
+      new THREE.MeshBasicMaterial({ color: new THREE.Color(...rgb), side: THREE.DoubleSide, toneMapped: false })
+    );
     m.position.set(...pos); m.rotation.set(...rot); env.add(m);
   };
-  strip(9, 0.5, [0, 5, -6], [0.4, 0, 0.3], 3);
-  strip(0.4, 8, [7, 0, -3], [0, -1, 0.2], 2.2);
-  strip(6, 0.3, [-6, -2, 4], [0, 1.2, -0.5], 1.6);
+  // softboxes brancas e lilases em volta: viram os riscos brilhantes no cromo
+  strip(16, 0.6, [0, 9, -8], [0.6, 0, 0.25], [9, 9, 10]);
+  strip(0.5, 14, [11, 1, -4], [0, -1.1, 0.15], [6, 6.5, 9]);
+  strip(12, 0.35, [-10, -3, 5], [0, 1.2, -0.45], [4, 4.2, 8]);
+  strip(0.3, 10, [-6, 6, -9], [0.3, 0.6, 0.6], [7, 7, 8]);
+  strip(14, 0.25, [3, -7, 8], [-1.1, 0.2, 0.1], [2.5, 2.8, 7]);
+  strip(3, 3, [0, 3, 12], [0, Math.PI, 0], [3, 3.2, 5]);
+  strip(18, 0.18, [0, -1, -10], [0, 0, -0.35], [12, 12, 14]);
+  strip(0.2, 16, [-12, 0, -2], [0, 1.3, 0.3], [8, 8, 11]);
+  strip(10, 0.15, [6, 5, 9], [0.8, -0.6, 0.4], [10, 10, 12]);
   return env;
 }
 
-const camera = new THREE.PerspectiveCamera(50, innerWidth / innerHeight, 0.1, 120);
-camera.position.set(0, 0, 9);
+/* ---------- materiais ---------- */
+const shared = { uTime: { value: 0 }, uDive: { value: 0 } };
 
-/* ---------- texturas geradas ---------- */
+// ondulação "líquida" nas fitas: deslocamento ao longo da normal, mais forte na ponta
+function liquidRibbons(mat) {
+  mat.onBeforeCompile = (sh) => {
+    sh.uniforms.uTime = shared.uTime;
+    sh.uniforms.uDive = shared.uDive;
+    sh.vertexShader = sh.vertexShader
+      .replace("#include <common>", `#include <common>
+        attribute float aT; attribute float aPhase;
+        uniform float uTime; uniform float uDive;`)
+      .replace("#include <begin_vertex>", `#include <begin_vertex>
+        float wave = sin(aT * 9. - uTime * 1.5 + aPhase) * .07 + sin(aT * 17. + uTime * 2.3 + aPhase * 2.) * .025;
+        transformed += objectNormal * wave * aT;
+        transformed *= 1. + uDive * .4 * aT;`);
+  };
+  return mat;
+}
+const chromeOpts = { metalness: 1, roughness: 0.035, envMapIntensity: 1.35, clearcoat: 0.6, clearcoatRoughness: 0.04, iridescence: 0.35, iridescenceIOR: 1.35, side: THREE.DoubleSide };
+const chromeWhite = liquidRibbons(new THREE.MeshPhysicalMaterial({ ...chromeOpts, color: 0xffffff }));
+const chromeLilac = liquidRibbons(new THREE.MeshPhysicalMaterial({ ...chromeOpts, color: 0xa7b0ff }));
+const glassRibbon = liquidRibbons(new THREE.MeshPhysicalMaterial({
+  color: 0xdfe6ff, metalness: 0.3, roughness: 0.02, clearcoat: 1, envMapIntensity: 1.8,
+  transparent: true, opacity: 0.32, side: THREE.DoubleSide, depthWrite: false,
+  iridescence: 0.6, iridescenceIOR: 1.4
+}));
+const bladeChrome = new THREE.MeshPhysicalMaterial({ ...chromeOpts, color: 0xd6dbff, side: THREE.FrontSide });
+
+/* ---------- fitas curvas ---------- */
+const UP = new THREE.Vector3(0, 1, 0);
+const FLOW = new THREE.Vector3(1, 0.45, 0.15).normalize(); // a diagonal da capa: baixo-esquerda → cima-direita
+const rand = (a, b) => a + Math.random() * (b - a);
+
+function flowDir() {
+  const dir = new THREE.Vector3(rand(-1, 1), rand(-1, 1), rand(-1, 1) * 0.55).normalize();
+  if (Math.random() < 0.72) dir.lerp(FLOW.clone().multiplyScalar(Math.random() < 0.65 ? 1 : -1), rand(0.45, 0.85)).normalize();
+  return dir;
+}
+
+/* várias fitas num único BufferGeometry (uma chamada de desenho por material).
+   Cada fita: linha central que sai do núcleo e curva em torno de um eixo perpendicular,
+   largura que afina até a ponta e torção ao longo do comprimento. A seção é curva (como uma calha),
+   para a normal variar na largura e o reflexo correr em faixas, em vez de uma cor chapada. */
+function ribbons(count, { wMin, wMax, lenMin, lenMax }) {
+  const SEG = 72, ACROSS = 7;
+  const pos = [], aT = [], aPhase = [], idx = [];
+  const c = new THREE.Vector3(), c2 = new THREE.Vector3(), T = new THREE.Vector3(), W = new THREE.Vector3(), N = new THREE.Vector3(), q = new THREE.Quaternion();
+  let base = 0;
+  for (let r = 0; r < count; r++) {
+    const dir = flowDir();
+    const axis = new THREE.Vector3().crossVectors(dir, new THREE.Vector3(rand(-1, 1), rand(-1, 1), rand(-1, 1))).normalize();
+    const bend = rand(0.25, 1.5) * (Math.random() < 0.5 ? 1 : -1);
+    const len = rand(lenMin, lenMax), r0 = rand(0, 0.5), w0 = rand(wMin, wMax), twist = rand(-2.6, 2.6), phase = rand(0, 6.28);
+    const bow = rand(0.35, 0.8) * (Math.random() < 0.5 ? 1 : -1);
+    const center = (tt, out) => out.copy(dir).applyQuaternion(q.setFromAxisAngle(axis, bend * tt)).multiplyScalar(r0 + len * tt);
+    for (let i = 0; i <= SEG; i++) {
+      const tt = i / SEG;
+      center(tt, c);
+      center(Math.min(1, tt + 0.01), c2);
+      T.subVectors(c2, c);
+      if (T.lengthSq() < 1e-8) T.copy(dir); else T.normalize();
+      W.crossVectors(T, axis).normalize().applyAxisAngle(T, twist * tt);
+      N.crossVectors(T, W).normalize();
+      const w = w0 * Math.pow(Math.sin(Math.PI * Math.min(1, tt * 1.25 + 0.05)), 0.6) * (1 - tt * 0.55);
+      for (let j = 0; j < ACROSS; j++) {
+        const u = (j / (ACROSS - 1)) * 2 - 1;      // -1..1 na largura
+        const lift = bow * w * (1 - u * u);       // curvatura da calha
+        pos.push(c.x + W.x * w * u + N.x * lift, c.y + W.y * w * u + N.y * lift, c.z + W.z * w * u + N.z * lift);
+        aT.push(tt); aPhase.push(phase);
+      }
+      if (i < SEG) {
+        for (let j = 0; j < ACROSS - 1; j++) {
+          const a = base + i * ACROSS + j, b = a + ACROSS;
+          idx.push(a, a + 1, b, a + 1, b + 1, b);
+        }
+      }
+    }
+    base += (SEG + 1) * ACROSS;
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+  g.setAttribute("aT", new THREE.Float32BufferAttribute(aT, 1));
+  g.setAttribute("aPhase", new THREE.Float32BufferAttribute(aPhase, 1));
+  g.setIndex(idx);
+  g.computeVertexNormals();
+  return g;
+}
+
+const burst = new THREE.Group();
+scene.add(burst);
+const k = small() ? 0.55 : 1;
+const ribbonMeshes = [
+  new THREE.Mesh(ribbons(Math.round(46 * k), { wMin: 0.08, wMax: 0.42, lenMin: 2.5, lenMax: 8.5 }), chromeWhite),
+  new THREE.Mesh(ribbons(Math.round(28 * k), { wMin: 0.06, wMax: 0.3, lenMin: 2, lenMax: 7 }), chromeLilac),
+  new THREE.Mesh(ribbons(Math.round(16 * k), { wMin: 0.2, wMax: 0.6, lenMin: 3, lenMax: 8 }), glassRibbon)
+];
+ribbonMeshes.forEach((m) => { m.frustumCulled = false; burst.add(m); });
+
+/* ---------- lâminas de cristal (instanciadas) ---------- */
+function blade() {
+  // prisma hexagonal fino que afina até a ponta, sombreamento suave
+  const g = new THREE.CylinderGeometry(0, 1, 1, 6, 1, false);
+  g.translate(0, 0.5, 0);
+  g.scale(0.07, 1, 0.025);
+  g.computeVertexNormals();
+  return g;
+}
+const NB = Math.round(60 * k);
+const blades = new THREE.InstancedMesh(blade(), bladeChrome, NB);
+blades.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+blades.frustumCulled = false;
+burst.add(blades);
+const bladeData = [];
+for (let i = 0; i < NB; i++) {
+  const dir = flowDir();
+  bladeData.push({
+    dir, q: new THREE.Quaternion().setFromUnitVectors(UP, dir),
+    roll: rand(0, 6.28), spin: rand(-0.3, 0.3),
+    r0: rand(0.2, 1.2), len: 1.2 + Math.pow(Math.random(), 1.4) * 6,
+    s: rand(0.6, 2), phase: rand(0, 6.28), amp: rand(0.05, 0.3)
+  });
+}
+
+/* ---------- núcleo de metal líquido ---------- */
+const blobMat = new THREE.MeshPhysicalMaterial({ ...chromeOpts, color: 0xf2f3ff, side: THREE.FrontSide, iridescence: 0.5 });
+blobMat.onBeforeCompile = (sh) => {
+  sh.uniforms.uTime = shared.uTime;
+  sh.uniforms.uDive = shared.uDive;
+  sh.vertexShader = sh.vertexShader
+    .replace("#include <common>", `#include <common>
+      uniform float uTime; uniform float uDive;
+      vec3 liquid(vec3 n){
+        float d = sin(n.x * 3.1 + uTime * 1.1) * sin(n.y * 2.7 + uTime * 1.3) * sin(n.z * 3.3 + uTime * .9)
+                + .5 * sin((n.x + n.y) * 5. + uTime * 1.7) * sin(n.z * 4. - uTime)
+                + .25 * sin(n.y * 9. + uTime * 2.2);
+        return n * (1. + d * .2 * (1. + uDive * 1.5));
+      }`)
+    // normal recalculada a partir de dois vizinhos deslocados
+    .replace("#include <beginnormal_vertex>", `
+      vec3 n0 = normalize(position);
+      vec3 tA = normalize(cross(n0, abs(n0.y) < .99 ? vec3(0., 1., 0.) : vec3(1., 0., 0.)));
+      vec3 tB = cross(n0, tA);
+      vec3 p0 = liquid(n0);
+      vec3 objectNormal = normalize(cross(liquid(normalize(n0 + tA * .01)) - p0, liquid(normalize(n0 + tB * .01)) - p0));
+      if (dot(objectNormal, n0) < 0.) objectNormal = -objectNormal;`)
+    .replace("#include <begin_vertex>", `vec3 transformed = p0 * length(position);`);
+};
+const blob = new THREE.Mesh(new THREE.IcosahedronGeometry(0.75, small() ? 24 : 48), blobMat);
+burst.add(blob);
+
+/* ---------- brilho, riscos, faíscas, grade ---------- */
 function glowTexture(stops) {
   const c = document.createElement("canvas");
   c.width = c.height = 128;
@@ -73,92 +237,19 @@ function glowTexture(stops) {
   stops.forEach(([o, col]) => grad.addColorStop(o, col));
   g.fillStyle = grad;
   g.fillRect(0, 0, 128, 128);
-  const t = new THREE.CanvasTexture(c);
-  t.colorSpace = THREE.SRGBColorSpace;
-  return t;
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
 }
 const softGlow = glowTexture([[0, "rgba(255,255,255,1)"], [0.25, "rgba(200,206,255,.55)"], [0.6, "rgba(110,118,240,.15)"], [1, "rgba(0,0,0,0)"]]);
 const dotTex = glowTexture([[0, "rgba(255,255,255,1)"], [0.4, "rgba(220,226,255,.6)"], [1, "rgba(0,0,0,0)"]]);
-
-/* ---------- geometria dos cacos ----------
-   prisma de seção losangular (4 lados) que afina até a ponta; "bend" curva a lâmina como as fitas da capa */
-function blade({ w, t, bend = 0, seg = 1 }) {
-  const g = new THREE.CylinderGeometry(0, 1, 1, 4, seg, false);
-  g.translate(0, 0.5, 0);
-  const p = g.attributes.position;
-  for (let i = 0; i < p.count; i++) {
-    let x = p.getX(i) * w, y = p.getY(i), z = p.getZ(i) * t;
-    if (bend) {
-      const th = y * bend;
-      const cx = (1 - Math.cos(th)) / bend, cy = Math.sin(th) / bend;
-      [x, y] = [cx + x * Math.cos(th), cy - x * Math.sin(th)];
-    }
-    p.setXYZ(i, x, y, z);
-  }
-  g.computeVertexNormals();
-  return g;
-}
-
-const chrome = new THREE.MeshStandardMaterial({ color: 0xd2d7ff, metalness: 1, roughness: 0.12, flatShading: true, envMapIntensity: 1.25 });
-const glass = new THREE.MeshPhysicalMaterial({
-  color: 0xdfe4ff, metalness: 0.5, roughness: 0.02, clearcoat: 1, flatShading: true,
-  transparent: true, opacity: 0.32, side: THREE.DoubleSide, depthWrite: false,
-  emissive: 0x14185a, emissiveIntensity: 0.15, envMapIntensity: 1.6
-});
-const variants = [
-  { geo: blade({ w: 0.2, t: 0.05 }), mat: chrome, n: 40 },                      // lâminas retas
-  { geo: blade({ w: 0.3, t: 0.04, bend: 0.28, seg: 14 }), mat: chrome, n: 34 }, // lâminas curvas de cromo
-  { geo: blade({ w: 0.38, t: 0.015, bend: 0.45, seg: 14 }), mat: glass, n: 30 },// fitas curvas de vidro
-  { geo: blade({ w: 0.05, t: 0.05 }), mat: chrome, n: 40 }                      // agulhas
-];
-
-const burst = new THREE.Group();
-scene.add(burst);
-const UP = new THREE.Vector3(0, 1, 0);
-const FLOW = new THREE.Vector3(1, 0.45, 0.15).normalize(); // a diagonal da capa: baixo-esquerda → cima-direita
-const shards = [];
-const rand = (a, b) => a + Math.random() * (b - a);
-
-variants.forEach((v) => {
-  const n = small() ? Math.round(v.n * 0.55) : v.n;
-  const mesh = new THREE.InstancedMesh(v.geo, v.mat, n);
-  mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-  mesh.frustumCulled = false;
-  burst.add(mesh);
-  for (let i = 0; i < n; i++) {
-    const dir = new THREE.Vector3(rand(-1, 1), rand(-1, 1), rand(-1, 1) * 0.55).normalize();
-    // parte dos cacos segue o fluxo diagonal (para os dois lados)
-    if (Math.random() < 0.72) dir.lerp(FLOW.clone().multiplyScalar(Math.random() < 0.65 ? 1 : -1), rand(0.45, 0.85)).normalize();
-    const q = new THREE.Quaternion().setFromUnitVectors(UP, dir);
-    shards.push({
-      mesh, i, dir, q,
-      roll: rand(0, Math.PI * 2), spin: rand(-0.25, 0.25),
-      r0: rand(0.1, 1.1), len: 1.4 + Math.pow(Math.random(), 1.4) * (v.mat === glass ? 6 : 7.5),
-      s: rand(0.6, 1.8), phase: rand(0, Math.PI * 2), amp: rand(0.05, 0.3)
-    });
-  }
-});
-
-/* núcleo: cristal cromado + estouro branco */
-const core = new THREE.Mesh(new THREE.IcosahedronGeometry(0.6, 0), chrome);
-burst.add(core);
-const coreInner = new THREE.Mesh(new THREE.OctahedronGeometry(0.42, 0), glass);
-burst.add(coreInner);
-const halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: softGlow, color: 0x8f99ff, transparent: true, opacity: 0.45, blending: THREE.AdditiveBlending, depthWrite: false }));
-halo.scale.setScalar(5);
+const halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: softGlow, color: 0x8f99ff, transparent: true, opacity: 0.35, blending: THREE.AdditiveBlending, depthWrite: false, fog: false }));
+halo.scale.setScalar(5.5);
 burst.add(halo);
-const flare = new THREE.Sprite(new THREE.SpriteMaterial({ map: softGlow, color: 0xffffff, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false }));
-flare.scale.setScalar(1.3);
-burst.add(flare);
-const keyLight = new THREE.PointLight(0xdfe4ff, 10, 14, 2);
+const keyLight = new THREE.PointLight(0xdfe4ff, 6, 12, 2);
 burst.add(keyLight);
-const rim = new THREE.DirectionalLight(0x6d76e8, 2.2);
-rim.position.set(-4, -2, 3);
-scene.add(rim);
-scene.add(new THREE.AmbientLight(0x3a42c0, 0.5));
 
-/* riscos de velocidade saindo do núcleo */
-const LINES = small() ? 110 : 220;
+const LINES = small() ? 110 : 200;
 const linePos = new Float32Array(LINES * 6);
 const lineData = [];
 for (let i = 0; i < LINES; i++) {
@@ -166,12 +257,11 @@ for (let i = 0; i < LINES; i++) {
 }
 const lineGeo = new THREE.BufferGeometry();
 lineGeo.setAttribute("position", new THREE.BufferAttribute(linePos, 3).setUsage(THREE.DynamicDrawUsage));
-const lineMat = new THREE.LineBasicMaterial({ color: 0x9fb0ff, transparent: true, opacity: 0.25, blending: THREE.AdditiveBlending, depthWrite: false });
+const lineMat = new THREE.LineBasicMaterial({ color: 0x9fb0ff, transparent: true, opacity: 0.22, blending: THREE.AdditiveBlending, depthWrite: false });
 const lines = new THREE.LineSegments(lineGeo, lineMat);
 lines.frustumCulled = false;
 burst.add(lines);
 
-/* faíscas */
 const SP = small() ? 350 : 800;
 const spPos = new Float32Array(SP * 3);
 for (let i = 0; i < SP; i++) {
@@ -181,12 +271,11 @@ for (let i = 0; i < SP; i++) {
 const spGeo = new THREE.BufferGeometry();
 spGeo.setAttribute("position", new THREE.BufferAttribute(spPos, 3));
 const sparks = new THREE.Points(spGeo, new THREE.PointsMaterial({
-  map: dotTex, color: 0xdfe4ff, size: 0.07, sizeAttenuation: true,
+  map: dotTex, color: 0xdfe4ff, size: 0.035, sizeAttenuation: true, opacity: 0.7,
   transparent: true, blending: THREE.AdditiveBlending, depthWrite: false
 }));
 burst.add(sparks);
 
-/* grade em perspectiva (canto inferior, como na capa) */
 const gridMat = new THREE.ShaderMaterial({
   transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
   uniforms: { uTime: { value: 0 }, uColor: { value: new THREE.Color(0x7c86f0) } },
@@ -210,7 +299,7 @@ scene.add(grid);
 /* ---------- pós-processamento ---------- */
 const composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
-const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth / 2, innerHeight / 2), 0.55, 0.45, 0.82);
+const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth / 2, innerHeight / 2), 0.7, 0.5, 0.8);
 composer.addPass(bloom);
 composer.addPass(new OutputPass());
 
@@ -239,6 +328,8 @@ function update(dt) {
   dive *= Math.pow(0.25, dt);
   mouse.x += (mouse.tx - mouse.x) * Math.min(1, dt * 2);
   mouse.y += (mouse.ty - mouse.y) * Math.min(1, dt * 2);
+  shared.uTime.value = t;
+  shared.uDive.value = dive;
 
   burst.rotation.set(0.25 + mouse.y * 0.12 + scrollP * 0.5, t * 0.05 + mouse.x * 0.25 + scrollP * 1.2, -0.38);
   camera.position.set(mouse.x * 0.5, -mouse.y * 0.3, baseZ - scrollP * 3.2 - dive * 1.2);
@@ -246,23 +337,23 @@ function update(dt) {
   camera.updateProjectionMatrix();
   camera.lookAt(burst.position.x * 0.6, burst.position.y * 0.6, 0);
 
-  for (const s of shards) {
+  for (let i = 0; i < NB; i++) {
+    const s = bladeData[i];
     const r = s.r0 + Math.sin(t * 0.6 + s.phase) * s.amp + dive * (1.2 + s.r0 * 1.8);
     v3.copy(s.dir).multiplyScalar(r);
     qRoll.setFromAxisAngle(UP, s.roll + t * s.spin);
     qq.copy(s.q).multiply(qRoll);
     s3.set(s.s, s.len * (1 + dive * 0.35), s.s);
     m4.compose(v3, qq, s3);
-    s.mesh.setMatrixAt(s.i, m4);
+    blades.setMatrixAt(i, m4);
   }
-  for (const v of burst.children) if (v.isInstancedMesh) v.instanceMatrix.needsUpdate = true;
+  blades.instanceMatrix.needsUpdate = true;
 
-  core.rotation.set(t * 0.3, t * 0.4, 0);
-  coreInner.rotation.set(-t * 0.5, t * 0.2, 0);
-  const pulse = 1 + Math.sin(t * 2.2) * 0.04 + dive * 0.6;
-  flare.scale.setScalar(1.3 * pulse);
-  halo.scale.setScalar(5 * (1 + dive * 0.3));
-  keyLight.intensity = 10 + dive * 30;
+  ribbonMeshes.forEach((m, i) => { m.rotation.z = Math.sin(t * 0.15 + i * 2) * 0.06; });
+  blob.rotation.set(t * 0.2, t * 0.3, 0);
+  blob.scale.setScalar(1 + dive * 0.5);
+  halo.scale.setScalar(5.5 * (1 + dive * 0.3));
+  keyLight.intensity = 6 + dive * 25;
 
   for (let i = 0; i < LINES; i++) {
     const L = lineData[i];
@@ -272,11 +363,11 @@ function update(dt) {
     linePos.set([L.dir.x * a, L.dir.y * a, L.dir.z * a, L.dir.x * b, L.dir.y * b, L.dir.z * b], i * 6);
   }
   lineGeo.attributes.position.needsUpdate = true;
-  lineMat.opacity = 0.22 + dive * 0.5;
+  lineMat.opacity = 0.2 + dive * 0.5;
 
   sparks.rotation.y = -t * 0.02;
   gridMat.uniforms.uTime.value = t * (1 + dive * 6);
-  bloom.strength = 0.55 + dive * 0.8;
+  bloom.strength = 0.7 + dive * 0.8;
 }
 
 function frame(now) {

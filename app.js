@@ -32,6 +32,7 @@
   };
 
   let current = -1;      // índice em albums
+  let everPlayed = false;
   let mode = null;       // "yt" | "bc"
   let queue = [];        // IDs do YouTube do lançamento atual
   let qi = 0;            // posição na fila
@@ -64,6 +65,7 @@
     el.player.classList.toggle("is-playing", on);
     el.npPlay.textContent = on ? "❚❚" : "▶";
     el.chip.classList.toggle("is-playing", on);
+    if (on && !everPlayed) { everPlayed = true; syncChip(); }
   }
 
   // anel de progresso em volta da lente (pathLength = 100)
@@ -280,7 +282,8 @@
 
   el.npPlay.addEventListener("click", togglePlay);
   let stageVisible = true;
-  const syncChip = () => { el.chip.hidden = stageVisible || current < 0; };
+  // o chip só aparece depois que algo tocou de verdade (não na abertura)
+  const syncChip = () => { el.chip.hidden = stageVisible || !everPlayed; };
   new IntersectionObserver(([entry]) => { stageVisible = entry.isIntersecting; syncChip(); }, { threshold: 0.15 })
     .observe($("#stage"));
 
