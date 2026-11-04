@@ -1,0 +1,279 @@
+<!doctype html>
+<!--
+   ::  T R - 0 1  ::  h y p e r t r a n c e  ::
+   ┌─────────────────────────────────────────────┐
+   │  dive in. take flight.                      │
+   │  site de fã · capas e áudio dos artistas    │
+   └─────────────────────────────────────────────┘
+-->
+<html lang="pt-BR" data-char="angel">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TR-01 :: hypertrance</title>
+  <meta name="description" content="hypertrance, uplifting trance e o revival do trance Y2K: o selo hypertrance, a discografia do nuphory e o Virtual Self.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Michroma&family=Saira:wdth,wght@75..125,100..900&family=Share+Tech+Mono&family=Cormorant+Garamond:ital,wght@1,300;1,400&family=Doto:wght@400..900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=3">
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.187.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.187.0/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <!-- ===== fundo: explosão de cristal 3D + camadas de impressão ===== -->
+  <div class="bg-fallback" aria-hidden="true"></div>
+  <canvas id="bg3d" aria-hidden="true"></canvas>
+  <div class="bg-halftone" aria-hidden="true"></div>
+  <div class="bg-scan" aria-hidden="true"></div>
+  <div class="bg-dim" aria-hidden="true"></div>
+  <div class="edge-mark" aria-hidden="true">𝔳𝔦𝔯𝔱𝔲𝔞𝔩 𝔰𝔢𝔩𝔣 ፨ TR-01 :: HYPERTRANCE ፨ NEO-Y2K ፨ 140 BPM</div>
+
+  <!-- ===== abertura (hero) ===== -->
+  <section class="hero" aria-label="Abertura">
+    <header class="masthead">
+      <div class="logo-wrap">
+        <div class="hud-row" aria-hidden="true"><span>[ TR-01 :: COMP. SITE</span><span>QUD.0 // PAL</span></div>
+        <h1 class="logo"><span class="logo-code">TR-01 ::</span> hypertrance</h1>
+        <p class="tagline">dive in. take flight.</p>
+      </div>
+      <div class="swoosh">
+        <svg class="swoosh-shape" viewBox="0 0 800 90" preserveAspectRatio="none" aria-hidden="true">
+          <defs>
+            <linearGradient id="sw" x1="0" x2="1">
+              <stop offset="0" stop-color="#C9D2FF" stop-opacity="0"/>
+              <stop offset=".25" stop-color="#B9C2FF" stop-opacity=".35"/>
+              <stop offset=".6" stop-color="#5C63D6" stop-opacity=".55"/>
+              <stop offset="1" stop-color="#2A33A8" stop-opacity=".6"/>
+            </linearGradient>
+            <linearGradient id="sw-hi" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#fff" stop-opacity=".55"/>
+              <stop offset=".45" stop-color="#fff" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <path d="M0 30 C 140 22, 300 10, 470 8 C 600 6, 700 26, 800 30 L 800 64 C 700 56, 620 42, 520 48 C 380 56, 220 82, 0 74 Z" fill="url(#sw)"/>
+          <path d="M0 30 C 140 22, 300 10, 470 8 C 600 6, 700 26, 800 30 L 800 64 C 700 56, 620 42, 520 48 C 380 56, 220 82, 0 74 Z" fill="url(#sw-hi)"/>
+          <path d="M0 30 C 140 22, 300 10, 470 8 C 600 6, 700 26, 800 30" fill="none" stroke="#fff" stroke-opacity=".9" stroke-width="1"/>
+          <path d="M0 74 C 220 82, 380 56, 520 48 C 620 42, 700 56, 800 64" fill="none" stroke="#C9D2FF" stroke-opacity=".5" stroke-width="1"/>
+        </svg>
+        <div class="ticker"><span id="ticker">❯ hypertrance ❯ uplifting trance ❯ neo-y2k ❯ virtual self ❯ nuphory ❯ the ultimate in y2k music and art ❯ aperte play ❯</span></div>
+        <div class="hud-row right" aria-hidden="true"><span>01:35 ]</span><span>2026 // 140–160 BPM</span></div>
+      </div>
+    </header>
+
+    <!-- bloco técnico no canto, como nos encartes de 2002 -->
+    <div class="hero-hud" aria-hidden="true">
+      <div class="hh-top">
+        <span class="hh-logo"><b>hyper</b>trance</span>
+        <span class="hh-mark">—^—<sup>TM</sup></span>
+        <span class="hh-year">'26</span>
+      </div>
+      <div class="hh-grid">
+        <ul class="hh-spec">
+          <li>TR-01_SERIES</li>
+          <li>HYPERTRANCE :: NEO-Y2K</li>
+          <li>SOUND SYSTEM // 140–160</li>
+          <li>VOL.01 · COMP. SITE</li>
+        </ul>
+        <span class="hh-chev">&gt;&gt;</span>
+        <svg class="hh-steps" viewBox="0 0 120 64">
+          <path d="M0 6 H40 L50 16 H120"/>
+          <path d="M0 26 H24 L34 36 H70 L80 46 H120"/>
+          <path d="M60 60 H120"/>
+        </svg>
+      </div>
+      <ul class="hh-spec small">
+        <li>REL_DATE 03.11.2026 :: PAL</li>
+        <li>SCPH-90001 // QUD.0 // HT_01–0012</li>
+        <li>DO NOT LOOK DIRECTLY INTO THE LIGHT</li>
+      </ul>
+    </div>
+    <div class="hero-coords" aria-hidden="true">
+      <span>X 0.62 / Y 0.38</span>
+      <span>// SIGNAL ACQUIRED</span>
+    </div>
+    <a class="scroll-cue" href="#main"><span>dive in</span><i aria-hidden="true"></i></a>
+  </section>
+
+  <div class="site" id="main">
+    <main class="layout">
+      <!-- ===== tocador + playlist ===== -->
+      <aside class="player-col">
+        <section class="player" aria-label="Tocador">
+          <div class="player-top">
+            <span class="brand">TR·AMP <small>v9.0</small></span>
+            <span class="leds" aria-hidden="true"><i></i><i></i><i></i></span>
+          </div>
+
+          <div class="screen">
+            <div class="screen-media">
+              <div id="yt"></div>
+              <iframe id="bc" title="Player do Bandcamp" hidden></iframe>
+              <div class="screen-idle" id="screen-idle">
+                <span class="idle-ring" aria-hidden="true"></span>
+                <span>INSERT DISC</span>
+              </div>
+              <div class="gesture-hint" id="gesture-hint" aria-live="polite">
+                <b>▶ clique aqui na tela</b>
+                <span>o navegador bloqueou o autoplay do vídeo. depois do primeiro clique, os próximos tocam sozinhos.</span>
+              </div>
+            </div>
+            <div class="lcd">
+              <div class="lcd-marquee"><span id="lcd-title">-- NO DISC --</span></div>
+              <div class="lcd-row">
+                <span id="lcd-time">00:00 / 00:00</span>
+                <span class="eq" id="eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
+                <span id="lcd-src">---</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="seek" id="seek" role="slider" tabindex="0" aria-label="Posição" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+            <div class="seek-fill" id="seek-fill"></div>
+          </div>
+          <div class="seek-label" aria-hidden="true"><span>TRUE HYPER TRANCE // NOW PLAYING</span><span id="log">/initiate</span></div>
+
+          <div class="controls">
+            <button class="big-play" id="btn-play" aria-label="Tocar / pausar">
+              <svg viewBox="0 0 24 24" class="ico-play"><path d="M7 4l13 8-13 8z"/></svg>
+              <svg viewBox="0 0 24 24" class="ico-pause"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>
+            </button>
+            <div class="small-btns">
+              <button class="pill" id="btn-prev" aria-label="Anterior"><svg viewBox="0 0 24 24"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg></button>
+              <button class="pill" id="btn-next" aria-label="Próximo"><svg viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg></button>
+              <button class="pill" id="btn-src" aria-label="Alternar YouTube / Bandcamp" title="Alternar YouTube / Bandcamp">BC</button>
+              <button class="pill" id="btn-info" aria-label="Ver ficha do lançamento" title="Ficha do lançamento">i</button>
+            </div>
+            <label class="volume">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4zM16 8.5a5 5 0 010 7l-1.4-1.4a3 3 0 000-4.2z"/></svg>
+              <input type="range" id="volume" min="0" max="100" value="70" aria-label="Volume">
+            </label>
+          </div>
+        </section>
+
+        <section class="playlist" aria-label="Playlist">
+          <div class="playlist-head"><span>&gt; playlist</span><span id="pl-count"></span></div>
+          <ol id="playlist"></ol>
+        </section>
+      </aside>
+
+      <div class="main-col">
+        <!-- ===== fileiras ===== -->
+        <section class="shelves" id="shelves" aria-label="Lançamentos"></section>
+
+        <!-- ===== origem: Virtual Self ===== -->
+        <section class="origin panel" aria-labelledby="origin-title">
+          <div class="circle" aria-hidden="true">
+            <svg class="rings" viewBox="0 0 400 400">
+              <defs>
+                <path id="glyph-path" d="M200 200 m-168 0 a168 168 0 1 1 336 0 a168 168 0 1 1 -336 0"/>
+              </defs>
+              <g class="ring r1"><circle cx="200" cy="200" r="190"/><circle cx="200" cy="200" r="182" stroke-dasharray="2 9"/></g>
+              <g class="ring r2"><text><textPath href="#glyph-path">𝔳𝔦𝔯𝔱𝔲𝔞𝔩 𝔰𝔢𝔩𝔣 ፨ 𝔱𝔢𝔠𝔥𝔫𝔦𝔠-𝔞𝔫𝔤𝔢𝔩 ፨ 𝔭𝔞𝔱𝔥𝔰𝔢𝔩𝔢𝔠𝔱𝔬𝔯 ፨ 𝔥𝔶𝔭𝔢𝔯𝔱𝔯𝔞𝔫𝔠𝔢 ፨ 𝔢𝔱𝔢𝔯𝔫𝔞𝔩 𝔰𝔭𝔯𝔦𝔫𝔤 ፨ 𝔢𝔬𝔫 𝔟𝔯𝔢𝔞𝔨 ፨</textPath></text></g>
+              <g class="ring r3">
+                <circle cx="200" cy="200" r="150"/>
+                <polygon points="200,58 323,271 77,271"/>
+                <polygon points="200,342 77,129 323,129"/>
+              </g>
+              <g class="ring r4"><circle cx="200" cy="200" r="118" stroke-dasharray="40 6 2 6"/></g>
+            </svg>
+            <button class="crystal" type="button" id="crystal" tabindex="-1">
+              <img src="assets/vs/ep_front.jpg" alt="">
+            </button>
+          </div>
+
+          <div class="origin-text">
+            <div class="hud-row" aria-hidden="true"><span>[ TR-00 :: ORIGEM</span><span>29.11.2017 ]</span></div>
+            <h2 id="origin-title" class="section-title">&gt; origem :: virtual self</h2>
+            <p class="poem">o trance de 2002, visto como um sonho que alguém ainda está tendo.</p>
+            <p class="origin-desc">O EP de 2017 do Porter Robinson reabriu a porta para o trance Y2K. O <b>HYPERTRANCE</b> do nuphory nasceu diretamente dele, e a cena inteira veio atrás.</p>
+            <ol class="vs-tracks" id="vs-tracks"></ol>
+            <div class="origin-actions">
+              <button class="gel-btn" type="button" id="vs-play">▶ tocar o EP</button>
+              <button class="ghost-btn" type="button" id="vs-info">ficha</button>
+              <div class="char-switch" role="group" aria-label="Paleta">
+                <button type="button" data-set-char="angel" aria-pressed="true">technic-Angel</button>
+                <button type="button" data-set-char="path" aria-pressed="false">Pathselector</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===== o que é hypertrance ===== -->
+        <section class="about panel" aria-labelledby="about-title">
+          <div class="hud-row" aria-hidden="true"><span>[ INF-03 :: SPEC SHEET</span><span>REV.B ]</span></div>
+          <h2 id="about-title" class="section-title">&gt; o que é hypertrance</h2>
+          <p class="lead">O lado limpo e luminoso do revival do trance Y2K. Trance moderno com o brilho maximalista do hyperpop, nascido no começo dos anos 2020 entre SoundCloud, Discord e Bandcamp.</p>
+          <div class="cards">
+            <article class="ice-card">
+              <span class="ic-code">01 // SOM</span>
+              <h3>supersaws &amp; piano Y2K</h3>
+              <p>140–160 BPM, kick com sidechain, supersaws, piano melódico de 2002 e vocais pitchados. Parentes: Hands Up, Eurobeat, Happy Hardcore, Hard Trance.</p>
+            </article>
+            <article class="ice-card">
+              <span class="ic-code">02 // VISUAL</span>
+              <h3>cristal, cromo, micro-HUD</h3>
+              <p>Explosões de vidro e luz sobre azul-marinho, ou céu e nuvens com cromo lavanda. Texto técnico minúsculo, colchetes, códigos de catálogo falsos, encarte de CD de 2002.</p>
+            </article>
+            <article class="ice-card">
+              <span class="ic-code">03 // CENA</span>
+              <h3>nuphory &amp; amigos</h3>
+              <p>nuphory, Luna Lenta, Aekae, Type R, crayvxn, Wyste, AUSA, telemist, yuuni, SAM WAITIN. O selo hypertrance se descreve como <i>the ultimate in y2k music and art</i>.</p>
+            </article>
+          </div>
+          <div class="palette" aria-label="Paleta medida nas capas">
+            <span style="--c:#0B0D15">#0B0D15</span><span style="--c:#121725">#121725</span><span style="--c:#1F2F55">#1F2F55</span><span style="--c:#3E609A">#3E609A</span><span style="--c:#6398C6">#6398C6</span><span style="--c:#ACCFE6" class="light">#ACCFE6</span><span style="--c:#FFFFFF" class="light">#FFFFFF</span>
+          </div>
+        </section>
+
+        <!-- ===== linha do tempo ===== -->
+        <section class="timeline panel" aria-labelledby="tl-title">
+          <div class="hud-row" aria-hidden="true"><span>[ LOG-04 :: TIMELINE</span><span>2017 → 2026 ]</span></div>
+          <h2 id="tl-title" class="section-title">&gt; linha do tempo</h2>
+          <ol class="tl">
+            <li><b>2017</b><span>Virtual Self (Porter Robinson) lança o EP e reabre a porta do trance Y2K.</span></li>
+            <li><b>2021</b><span>nuphory lança o single <i>HYPERTRANCE</i>, que dá nome à cena. Depois vem <i>FINAL GATE / ETHEREAL REALITY</i>.</span></li>
+            <li><b>2022</b><span><i>HYPERTRANCE RE:vision</i> (a capa “exoplanet '02”), <i>NVISION EP</i> e <i>ditherdream1</i>.</span></li>
+            <li><b>2023</b><span>O selo hypertrance lança as coletâneas <i>hypertrance 1</i> e <i>2</i> e o samplepack. A WKNC chama o estilo de lado “não-hexD” do revival.</span></li>
+            <li><b>2025</b><span>A Image-Line lança <i>FLEX | Hypertrance</i>, o pack de presets do nuphory para o FL Studio.</span></li>
+            <li><b>2026</b><span><i>gravity breaker</i> (nuphory, Quatiica).</span></li>
+          </ol>
+        </section>
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="badges">
+        <span class="badge b1">NEO<b>Y2K</b></span>
+        <span class="badge b2">BEST VIEWED<b>1024×768</b></span>
+        <span class="badge b3">140<b>BPM</b></span>
+        <span class="badge b4">DIVE IN<b>TAKE FLIGHT</b></span>
+        <span class="badge b5">TR<b>-01</b></span>
+      </div>
+      <p>capas e áudio pertencem aos artistas · apoie no Bandcamp · notas do RYM aproximadas · site de fã, sem afiliação</p>
+    </footer>
+  </div>
+
+  <!-- ===== ficha do lançamento ===== -->
+  <div class="modal" id="modal" hidden>
+    <div class="modal-backdrop" data-close></div>
+    <article class="window" role="dialog" aria-modal="true" aria-labelledby="m-title">
+      <div class="window-bar">
+        <span>release_info.sys</span>
+        <button class="win-x" data-close aria-label="Fechar">×</button>
+      </div>
+      <div class="window-body" id="modal-body"></div>
+    </article>
+  </div>
+
+  <script src="albums.js?v=3"></script>
+  <script src="app.js?v=3"></script>
+  <script type="module" src="bg3d.js?v=3"></script>
+</body>
+</html>
